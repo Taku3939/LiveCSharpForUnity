@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using LiveCoreLibrary;
 using LiveCoreLibrary.Commands;
+using LiveCoreLibrary.Messages;
 using LiveCoreLibrary.Utility;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,13 +32,18 @@ namespace LiveClient
 
         private void Start()
         {
+            // IDの生成
             var userId = Guid.NewGuid();
             selfUser = new User(userId, self.gameObject);
+            
+            // コアシステムにイベントの追加
             LiveNetwork.Instance.OnMessageReceivedUdp += OnMessageReceivedUdp;
             LiveNetwork.Instance.OnMessageReceivedTcp += OnMessageReceivedTcp;
             LiveNetwork.Instance.OnConnected += OnConnected;
             LiveNetwork.Instance.OnJoin += OnJoin;
-            LiveNetwork.Instance.OnLeave += (id) => { _userHolder.TryRemove(id, out var data); };
+            LiveNetwork.Instance.OnLeave += OnLeave;
+            
+            //ボタンにイベント追加
             connectButton.onClick.AddListener(Connect);
             chatButton.onClick.AddListener(() => SendChat(chatInputField.text));
             
@@ -57,6 +63,12 @@ namespace LiveClient
         {
             Debug.Log("join is " + id);
             await LiveNetwork.Instance.HolePunching();
+        }
+
+        public void OnLeave(Guid id)
+        {
+            _userHolder.TryRemove(id, out var data);
+            Debug.Log("leave is " + id);
         }
 
         public void OnConnected()
@@ -163,14 +175,16 @@ namespace LiveClient
             }
         }
 
-        // public async void ReConnect()
+        // public static async void ReConnect()
         // {
+        //     LiveNetwork.Instance.Leave();
+        //     await Task.Delay(2000);
         //     LiveNetwork.Instance.Close();
+        //     await Task.Delay(2000);
         //     await LiveNetwork.Instance.ConnectTcp(tcpHost, tcpPort);
-        //     LiveNetwork.Instance.Join(selfUser.Id, roomName);
+        //     LiveNetwork.Instance.Join(userId, roomName);
         //     LiveNetwork.Instance.ConnectUdp(udpHost, udpPort);
         // }
-
 
         private void SendChat(string message)
         {

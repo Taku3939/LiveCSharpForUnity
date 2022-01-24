@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using LiveCoreLibrary;
 using LiveCoreLibrary.Client;
 using LiveCoreLibrary.Commands;
+using LiveCoreLibrary.Messages;
 using UnityEngine;
 
 namespace LiveClient
