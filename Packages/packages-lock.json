@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.neuecc.messagepack": {
+      "version": "https://github.com/neuecc/MessagePack-CSharp.git?path=src/MessagePack.UnityClient/Assets/Scripts/MessagePack",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "db187ed67ed2732c9886e6ebde895e0e5255f8fa"
+    },
     "com.unity.collab-proxy": {
       "version": "1.3.9",
       "depth": 0,

@@ -9,7 +9,7 @@ public class Move : MonoBehaviour
     public float speed = 0.3f;
     void Start()
     {
-        //_rigidbody = this.GetComponent<Rigidbody>();
+        //cd_rigidbody = this.GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -21,6 +21,6 @@ public class Move : MonoBehaviour
         
         //
 
-        this.transform.rotation *= Quaternion.AngleAxis(1f, Vector3.left + Vector3.forward);
+        this.transform.rotation *= Quaternion.AngleAxis(1f * speed, Vector3.left + Vector3.forward);
     }
 }
