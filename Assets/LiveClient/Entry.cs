@@ -4,11 +4,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using LiveCoreLibrary;
+using LiveCoreLibrary.Client;
 using LiveCoreLibrary.Commands;
 using LiveCoreLibrary.Messages;
 using LiveCoreLibrary.Utility;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = System.Random;
 
 namespace LiveClient
 {
@@ -19,7 +21,7 @@ namespace LiveClient
 
         [SerializeField] private Transform self;
         [SerializeField] private GameObject prefab;
-        private ConcurrentDictionary<Guid, User> _userHolder = new ConcurrentDictionary<Guid, User>();
+        private ConcurrentDictionary<ulong, User> _userHolder = new ConcurrentDictionary<ulong, User>();
         private User selfUser;
 
         [SerializeField] private InputField tcpIpField;
@@ -30,10 +32,12 @@ namespace LiveClient
         [SerializeField] private InputField chatInputField;
         [SerializeField] private Button chatButton;
 
+
+        public ulong userId;
         private void Start()
         {
             // IDの生成
-            var userId = Guid.NewGuid();
+            userId = (ulong)new Random().Next();
             selfUser = new User(userId, self.gameObject);
             
             // コアシステムにイベントの追加
@@ -59,13 +63,13 @@ namespace LiveClient
         }
 
 
-        public async void OnJoin(Guid id)
+        public async void OnJoin(ulong id)
         {
             Debug.Log("join is " + id);
             await LiveNetwork.Instance.HolePunching();
         }
 
-        public void OnLeave(Guid id)
+        public void OnLeave(ulong id)
         {
             _userHolder.TryRemove(id, out var data);
             Debug.Log("leave is " + id);
@@ -98,12 +102,12 @@ namespace LiveClient
 
                     foreach (var packet in x.EndPointPackets)
                     {
-                        Debug.Log("uo : " + packet.Guid);
-                        var isContain = _userHolder.ContainsKey(packet.Guid);
+                        Debug.Log("uo : " + packet.Id);
+                        var isContain = _userHolder.ContainsKey(packet.Id);
                         if (isContain) continue;
 
                         GameObject newGo = Instantiate(prefab, this.transform);
-                        _userHolder.TryAdd(packet.Guid, new User(packet.Guid, newGo));
+                        _userHolder.TryAdd(packet.Id, new User(packet.Id, newGo));
                     }
 
                     break;
@@ -128,16 +132,16 @@ namespace LiveClient
             }
         }
 
-        public List<Guid> GetRmUser(EndPointPacketHolder endPointPacketHolder)
+        public List<ulong> GetRmUser(EndPointPacketHolder endPointPacketHolder)
         {
             //
-            List<Guid> ids = new List<Guid>();
+            List<ulong> ids = new List<ulong>();
             foreach (var userHolderKey in _userHolder.Keys)
             {
                 bool isContain = false;
                 foreach (var packet in endPointPacketHolder.EndPointPackets)
                 {
-                    if (packet.Guid == userHolderKey)
+                    if (packet.Id == userHolderKey)
                     {
                         isContain = true;
                     }
