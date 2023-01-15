@@ -118,7 +118,9 @@ namespace LiveCoreLibrary.Client
         public async void ConnectUdp(string host, int port)
         {
             // Udp
-            _udp = new Udp(UserId, new IPEndPoint(IPAddress.Parse(host), port));
+            var addresses = await Dns.GetHostAddressesAsync(host);
+            var address = addresses[0];
+            _udp = new Udp(UserId, new IPEndPoint(address, port));
             _udp.ReceiveLoop(10);
             _udp.Process(10);
 

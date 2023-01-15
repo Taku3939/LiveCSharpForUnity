@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LiveCoreLibrary.Commands;
 using LiveCoreLibrary.Messages;
+using UnityEngine;
 
 namespace LiveCoreLibrary.Client
 {
@@ -49,9 +50,11 @@ namespace LiveCoreLibrary.Client
 
             try
             {
-                await client.ConnectAsync(host, port);
+                var addresses = await Dns.GetHostAddressesAsync(host);
+                var address = addresses[0];
+                await client.ConnectAsync(address, port);
                 cts = new CancellationTokenSource();
-                OnConnected?.Invoke(new IPEndPoint(IPAddress.Parse(host), port));
+                OnConnected?.Invoke(new IPEndPoint(address, port));
                 return true;
             }
             catch (SocketException)
@@ -60,7 +63,7 @@ namespace LiveCoreLibrary.Client
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Debug.Log(e);
                 return false;
             }
         }

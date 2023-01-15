@@ -21,8 +21,8 @@ namespace LiveClient
 
         [SerializeField] private Transform self;
         [SerializeField] private GameObject prefab;
-        private ConcurrentDictionary<ulong, User> _userHolder = new ConcurrentDictionary<ulong, User>();
-        private User selfUser;
+        public ConcurrentDictionary<ulong, User> _userHolder = new ConcurrentDictionary<ulong, User>();
+        public User selfUser;
 
         [SerializeField] private InputField tcpIpField;
         [SerializeField] private InputField tcpPortField;
@@ -102,6 +102,9 @@ namespace LiveClient
 
                     foreach (var packet in x.EndPointPackets)
                     {
+                        
+                        print(packet.Address);
+                        print(packet.Port);
                         Debug.Log("uo : " + packet.Id);
                         var isContain = _userHolder.ContainsKey(packet.Id);
                         if (isContain) continue;

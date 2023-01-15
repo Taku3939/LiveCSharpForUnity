@@ -5,9 +5,6 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/PositionTest2.unity
-    guid: 05ec847b5c53f26469a2058533abf286
   - enabled: 1
     path: Assets/Scenes/PositionTest.unity
     guid: 99cb82d7795f2484da2990c5f33ebff6

@@ -11,7 +11,7 @@ namespace LiveClient.View
     {
         public Transform character;
         public Transform target;
-        private ulong id;
+        [SerializeField] private ulong id;
         [SerializeField] private Entry _entry;
 
         private void Start()

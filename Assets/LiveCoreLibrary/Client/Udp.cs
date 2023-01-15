@@ -135,7 +135,7 @@ namespace LiveCoreLibrary.Client
                     // あってるかは知らん
                     if (!Utility.Util.IsConnected(_udp.Client))
                         return;
-
+                    
                     string address = udpEndPoint.Address;
                     int port = udpEndPoint.Port;
                     // アドレスが自分のグローバルIPだった場合ローカルホストにする
