@@ -28,7 +28,7 @@ namespace LiveCoreLibrary.Client
             _endPoint = endPoint;
             // //適当なデータを送信
             // これいらんかも
-            IUdpCommand ping = new HolePunchingPacket(userId);
+            IUdpCommand ping = new HolePunchingPacket(userId, Dns.GetHostName());
             var pingBuf = MessagePackSerializer.Serialize(ping);
             _udp.Client.SendTo(pingBuf, endPoint);
 
@@ -96,6 +96,7 @@ namespace LiveCoreLibrary.Client
         }
 
 
+   
         public async Task SendClients(IUdpCommand udpCommand, EndPointPacketHolder p2PClients, bool isSelf = false)
         {
             try
@@ -104,23 +105,7 @@ namespace LiveCoreLibrary.Client
                 var data = MessagePackSerializer.Serialize(udpCommand);
                 // 送信先が存在しない場合
                 if (p2PClients == null) return;
-                //if (_udp.Client == null) return;
-
-                // //自分のエンドポイントを取得
-                EndPointPacket selfPacket = new EndPointPacket(0, "", -1);
-
-                foreach (var x in p2PClients.EndPointPackets)
-                    if (x.Id == this.UserId)
-                        selfPacket = x;
-                    
-                
-
-                //自分のエンドポイントがない場合
-                if (selfPacket.Port == -1) return;
-
-                // if(selfEndPointPacket == null) {return;}
-                // クライントごとに送信処理
-
+                if(!p2PClients.GetPacketById(this.UserId, out var selfPacket)) return;
                 string str = "";  
                 var array = p2PClients.EndPointPackets.Select(x => $"[{x.Address} : {x.Port} : {x.Id}]");
                 foreach (var a in array)
@@ -135,12 +120,11 @@ namespace LiveCoreLibrary.Client
                     // あってるかは知らん
                     if (!Utility.Util.IsConnected(_udp.Client))
                         return;
-                    
-                    string address = udpEndPoint.Address;
-                    int port = udpEndPoint.Port;
-                    // アドレスが自分のグローバルIPだった場合ローカルホストにする
-                    if (selfPacket.Address == address) address = "127.0.0.1";
 
+                    // アドレスが自分のグローバルIPだった場合ローカルアドレスにする
+                    string address = selfPacket.Address == udpEndPoint.Address ? udpEndPoint.Address : udpEndPoint.NatAddress;
+                    int port = udpEndPoint.Port;
+                    
                     //自分に送信しない場合
                     if (!isSelf && port == selfPacket.Port) continue;
 

@@ -36,7 +36,7 @@ namespace LiveCoreLibrary.Client
         /// </summary>
         public async Task HolePunching()
         {
-            IUdpCommand endPointPacket = new HolePunchingPacket(this.UserId);
+            IUdpCommand endPointPacket = new HolePunchingPacket(this.UserId, Dns.GetHostName());
             if (_udp != null) await _udp.SendServer(endPointPacket);
         }
 
@@ -66,7 +66,7 @@ namespace LiveCoreLibrary.Client
         public void Join(ulong userId, string roomName)
         {
             this.UserId = userId;
-            ITcpCommand join = new Join(userId, roomName);
+            ITcpCommand join = new Join(userId, roomName, "");
             _tcp.SendAsync(join);
         }
 
