@@ -8,9 +8,9 @@ namespace LiveCoreLibrary.Commands
     public class HolePunchingPacket : IUdpCommand
     {
         [Key(0)] public readonly ulong UserId;
-        [Key(1)] public readonly string NatAddress;
+        [Key(1)] public readonly string[] NatAddress;
 
-        public HolePunchingPacket(ulong userId, string natAddress)
+        public HolePunchingPacket(ulong userId, string[] natAddress)
         {
             this.UserId = userId;
             this.NatAddress = natAddress;
@@ -22,14 +22,14 @@ namespace LiveCoreLibrary.Commands
     {
         [Key(0)] public readonly ulong Id;
         [Key(1)] public readonly string Address;
-        [Key(2)] public readonly string NatAddress;
+        [Key(2)] public readonly string[] NatAddresses;
         [Key(3)] public readonly int Port;
 
-        public EndPointPacket(ulong id, string address, string natAddress, int port)
+        public EndPointPacket(ulong id, string address, string[] natAddresses, int port)
         {
             Id = id;
             Address = address;
-            NatAddress = natAddress;
+            NatAddresses = natAddresses;
             Port = port;
         }
 
@@ -38,7 +38,7 @@ namespace LiveCoreLibrary.Commands
             int hash = 17;
             hash = hash * 23 + Id.GetHashCode();
             hash = hash * 23 + Address.GetHashCode();
-            hash = hash * 23 + NatAddress.GetHashCode();
+            hash = hash * 23 + NatAddresses.GetHashCode();
             hash = hash * 23 + Port.GetHashCode();
             return hash;
         }
@@ -54,7 +54,7 @@ namespace LiveCoreLibrary.Commands
         {
             return Id == other.Id &&
                    Address == other.Address &&
-                   NatAddress == other.NatAddress &&
+                   NatAddresses == other.NatAddresses &&
                    Port == other.Port;
         }
 

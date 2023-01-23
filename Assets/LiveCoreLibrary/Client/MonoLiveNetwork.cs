@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using LiveCoreLibrary.Client;
@@ -38,9 +40,13 @@ namespace LiveCoreLibrary.Client
         {
             var hostName = Dns.GetHostName();
             var addresses = await Dns.GetHostAddressesAsync(hostName);
-            IUdpCommand endPointPacket = new HolePunchingPacket(this.UserId, addresses[0].ToString());
-            if (_udp != null) await _udp.SendServer(endPointPacket);
 
+            var adds = addresses
+                .Where(y => y.AddressFamily.Equals(AddressFamily.InterNetwork))
+                .Select(y => y.ToString())
+                .ToArray();
+            IUdpCommand endPointPacket = new HolePunchingPacket(this.UserId, adds);
+            if (_udp != null) await _udp.SendServer(endPointPacket);
         }
 
         /// <summary>
@@ -134,7 +140,7 @@ namespace LiveCoreLibrary.Client
         {
             if (_udp != null) _udp.Close();
             if (_tcp != null) _tcp.Close();
-            
+
             P2PClients = null;
             UserId = 0;
 #if DEBUG

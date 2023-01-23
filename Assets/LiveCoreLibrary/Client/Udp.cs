@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LiveCoreLibrary.Commands;
 using MessagePack;
+using UnityEngine;
 
 namespace LiveCoreLibrary.Client
 {
@@ -31,7 +32,12 @@ namespace LiveCoreLibrary.Client
             string hostname = Dns.GetHostName();
             Dns.GetHostAddressesAsync(hostname).ContinueWith(x =>
             {
-                IUdpCommand ping = new HolePunchingPacket(userId, x.Result[0].ToString());
+                var addresses = 
+                    x.Result.
+                    Where(y => y.AddressFamily.Equals(AddressFamily.InterNetwork))
+                    .Select(y => y.ToString())
+                    .ToArray();
+                IUdpCommand ping = new HolePunchingPacket(userId, addresses);
                 var pingBuf = MessagePackSerializer.Serialize(ping);
                 _udp.Client.SendTo(pingBuf, endPoint);
             });
@@ -118,8 +124,8 @@ namespace LiveCoreLibrary.Client
                     str += a;
                 }
                 
-                Console.WriteLine(str);
-
+                Debug.Log(str);
+                
                 foreach (var udpEndPoint in p2PClients.EndPointPackets)
                 {
                     // あってるかは知らん
@@ -127,15 +133,25 @@ namespace LiveCoreLibrary.Client
                         return;
 
                     // アドレスが自分のグローバルIPだった場合ローカルアドレスにする
-                    string address = selfPacket.Address == udpEndPoint.Address ? udpEndPoint.NatAddress : udpEndPoint.Address;
+                    string address = udpEndPoint.Address;
                     int port = udpEndPoint.Port;
+
                     
                     //自分に送信しない場合
                     if (!isSelf && port == selfPacket.Port) continue;
 
-                    //送信
-                    Console.WriteLine($"Send to [{address} : {port}]");
-                    await _udp.SendAsync(data, data.Length, address, udpEndPoint.Port);
+                    if (selfPacket.Address == udpEndPoint.Address)
+                        foreach (var natAddress in udpEndPoint.NatAddresses)
+                        {
+                            //Debug.Log($"Send to [{natAddress} : {port}]");
+                            await _udp.SendAsync(data, data.Length, natAddress, port);
+                        }
+                    else
+                    {
+                        //送信
+                        //Debug.Log($"Send to [{address} : {port}]");
+                        await _udp.SendAsync(data, data.Length, address, udpEndPoint.Port);
+                    }
                 }
             }
             catch (Exception e)
