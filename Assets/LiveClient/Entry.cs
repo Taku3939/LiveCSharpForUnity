@@ -102,10 +102,6 @@ namespace LiveClient
 
                     foreach (var packet in x.EndPointPackets)
                     {
-                        
-                        print(packet.Address);
-                        print(packet.Port);
-                        Debug.Log("uo : " + packet.Id);
                         var isContain = _userHolder.ContainsKey(packet.Id);
                         if (isContain) continue;
 

@@ -28,9 +28,14 @@ namespace LiveCoreLibrary.Client
             _endPoint = endPoint;
             // //適当なデータを送信
             // これいらんかも
-            IUdpCommand ping = new HolePunchingPacket(userId, Dns.GetHostName());
-            var pingBuf = MessagePackSerializer.Serialize(ping);
-            _udp.Client.SendTo(pingBuf, endPoint);
+            string hostname = Dns.GetHostName();
+            Dns.GetHostAddressesAsync(hostname).ContinueWith(x =>
+            {
+                IUdpCommand ping = new HolePunchingPacket(userId, x.Result[0].ToString());
+                var pingBuf = MessagePackSerializer.Serialize(ping);
+                _udp.Client.SendTo(pingBuf, endPoint);
+            });
+  
 
             _bufferPool = new ConcurrentQueue<byte[]>();
         }
@@ -122,7 +127,7 @@ namespace LiveCoreLibrary.Client
                         return;
 
                     // アドレスが自分のグローバルIPだった場合ローカルアドレスにする
-                    string address = selfPacket.Address == udpEndPoint.Address ? udpEndPoint.Address : udpEndPoint.NatAddress;
+                    string address = selfPacket.Address == udpEndPoint.Address ? udpEndPoint.NatAddress : udpEndPoint.Address;
                     int port = udpEndPoint.Port;
                     
                     //自分に送信しない場合
